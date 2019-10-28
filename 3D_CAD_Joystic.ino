@@ -32,12 +32,13 @@
 #define 	Xpin			  9
 #define 	Ypin			  8
 
-/*
+
 #define		SW1pin			5
 #define		SW2pin			6
-#define		SW3pin			7
-#define		SW4pin			8
-#define		SW5pin			9
+#define		SW3pin			10
+#define		SW4pin			11
+#define		SW5pin			12
+/*
 #define		SW6pin			10
 #define		SW7pin			16
 #define		SW8pin			14
@@ -375,8 +376,3 @@ void initDebug(void)
   Serial.print("_____________________________________________\n");
   return;
 }
-
-
-
-
-
