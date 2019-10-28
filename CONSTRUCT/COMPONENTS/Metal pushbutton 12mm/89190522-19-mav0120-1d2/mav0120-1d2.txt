@@ -1,0 +1,13 @@
+﻿"Symbol";"Value";"Unit";
+"TraceParts.PartNumber";"90-08022019-032724";"";
+"REFERENCE";"MAV0120-1D2";"";
+"TraceParts.ClassPath";"";"";
+"TraceParts.PartVersion";"1.0.0";"";
+"TraceParts.InstanceId";"90-08022019-0327242N3XX9WWY2MK673V115V3T3RA";"";
+"TraceParts.PartLanguage";"en";"";
+"TraceParts.PartTitle";"Push Button Switches, MAV0120-1D2";"";
+"SUPPLIER";"Bulgin";"";
+"DESIGN";"Push Button Switches, MAV0120-1D2";"";
+"TRACEPARTS";"TRACEPARTS";"";
+"TraceParts.PartStatus";"Published";"";
+"TraceParts.PartStatusId";"";"";
