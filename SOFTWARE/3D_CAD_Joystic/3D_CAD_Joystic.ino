@@ -6,9 +6,9 @@
 //************************************************
 //********************DEBUG***********************
 //************************************************
-//#define debugEncoder
+#define debugEncoder
 //#define debugJoystic
-//#define debugSw
+#define debugSw
 
 #ifdef debugEncoder
   #define debug
@@ -21,6 +21,9 @@
 #ifdef debugSw
   #define debug
 #endif
+
+#define   SWNUM       5
+#define   SWTIMEOUT   10
 //************************************************
 //*******************PINOUT***********************
 //************************************************
@@ -32,20 +35,11 @@
 #define 	Xpin			  9
 #define 	Ypin			  8
 
-
 #define		SW1pin			5
 #define		SW2pin			6
 #define		SW3pin			10
 #define		SW4pin			11
 #define		SW5pin			12
-/*
-#define		SW6pin			10
-#define		SW7pin			16
-#define		SW8pin			14
-#define		SW9pin			15
-#define		SW10pin			18
-#define		SW11pin			19
-*/
 //************************************************
 //********************SETUP***********************
 //************************************************
@@ -80,13 +74,17 @@ uint8_t             Xdir    = 0;
 uint8_t             Ydir    = 0;
 
 uint8_t 	          encSW		= 0;
-uint8_t             encSWst = 0;
+uint8_t             encSWst = 0xFF;
 uint8_t             joySW   = 0;
-uint8_t             joySWst = 0;
+uint8_t             joySWst = 0xFF;
 
 uint8_t 	          aData   = 0;
 uint8_t 	          aLast   = 0;
 signed short int    counter = 0;
+
+uint8_t             SWpins[ SWNUM ] = { SW1pin, SW2pin, SW3pin, SW4pin, SW5pin };
+uint8_t             SWstat[SWNUM];
+uint8_t             SWs[SWNUM];
 //************************************************
 //********************INIT************************
 //************************************************
@@ -97,6 +95,7 @@ void setup()
   #endif
 	initEncoder();    // Encoder	
 	initJoystic();    // Joystic
+  initSW();         // Buttons
   Consumer.begin();
 	return;
 }
@@ -109,14 +108,15 @@ void loop()
 	
 	// HMI reading:
 	encData = readEncoder();
-	encSW = readSW(encSWpin,encSWst);
-  joySW = readSW(joySWpin,joySWst);
+	encSW   = readSW(encSWpin,encSWst);
+  joySW   = readSW(joySWpin,joySWst);
 	readJoystic();
+  readSWseq();
   // HID
   //hidZoom(encData);
-  hidRotateX(Xdir);
-  hidRotateY(Ydir);
-  hidRotateZ(encData);
+  //hidRotateX(Xdir);
+  //hidRotateY(Ydir);
+  //hidRotateZ(encData);
   return;
 }
 
@@ -273,23 +273,59 @@ void initJoystic(void)
 //************************************************
 //***********************SW***********************
 //************************************************
-uint8_t readSW(uint8_t pin, uint8_t &state)
+void initSW( void )
+{
+  uint8_t i = 0;
+  pinMode( SW1pin, INPUT );
+  pinMode( SW2pin, INPUT );
+  pinMode( SW3pin, INPUT );
+  pinMode( SW4pin, INPUT );
+  pinMode( SW5pin, INPUT );
+  digitalWrite( SW1pin, HIGH );
+  digitalWrite( SW2pin, HIGH );
+  digitalWrite( SW3pin, HIGH );
+  digitalWrite( SW4pin, HIGH );
+  digitalWrite( SW5pin, HIGH );
+  for ( i=0; i<SWNUM; i++ )
+  {
+    SWstat[i] = 0xFF;
+  }
+  return;
+}
+
+uint8_t readSW( uint8_t pin, uint8_t &state )
 {
 	uint8_t out   = 0;
-	uint8_t input = digitalRead(pin);
-	if ((input == 0) && (state == 0))
+	uint8_t input = digitalRead( pin );
+	if ( ( input == 0 ) && ( state == 0xFF ) )
 	{
 		#ifdef debugSw
-			Serial.print("Button: Clicked\n");
+      Serial.print( "Button: №" );
+      Serial.print( pin ); 
+			Serial.print( " Clicked\n");
 		#endif
-    state = 1;
+    state = 0;
 		out   = 1;
 	}
-	else if ((input == 1) && (state == 1))
+	else if ( ( input == 1 ) && ( state >= SWTIMEOUT ) && ( state != 0xFF ) )
 	{
-    state = 0;
+    state = 0xFF;
 	}
+  else if ((input == 1) && (state < SWTIMEOUT))
+  {
+    state++;
+  }
   return out;
+}
+
+void readSWseq(void)
+{
+  uint8_t i=0;
+  for( i=0; i<SWNUM; i++ )
+  {
+    SWs[i] = readSW( SWpins[i], SWstat[i] );
+  }
+  return;
 }
 //************************************************
 //******************ENCODER***********************
